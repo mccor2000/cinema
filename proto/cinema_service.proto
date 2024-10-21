@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package cinema;
+
+option go_package = "github.com/mccor2000/cinema/proto";
+
+service CinemaService {
+  rpc GetCinema (GetCinemaRequest) returns (CinemaResponse) {}
+  rpc UpdateCinema (CinemaConfig) returns (CinemaResponse) {}
+  rpc QueryAvailableSeats (QueryRequest) returns (QueryResponse) {}
+  rpc ReserveSeats (ReservationRequest) returns (ReservationResponse) {}
+  rpc CancelReservation (CancellationRequest) returns (CancellationResponse) {}
+}
+
+message GetCinemaRequest {}
+
+message CinemaConfig {
+  int32 rows = 1;
+  int32 columns = 2;
+  int32 min_distance = 3;
+}
+
+message CinemaResponse {
+  int32 rows = 1;
+  int32 columns = 2;
+  int32 min_distance = 3;
+}
+
+message Seat {
+  int32 row = 1;
+  int32 column = 2;
+}
+
+message QueryRequest {}
+
+message QueryResponse {
+  repeated Seat available_seats = 1;
+}
+
+message ReservationRequest {
+  repeated Seat seats = 1;
+}
+
+message ReservationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CancellationRequest {
+  repeated Seat seats = 1;
+}
+
+message CancellationResponse {
+  bool success = 1;
+  string message = 2;
+}
