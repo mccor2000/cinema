@@ -7,11 +7,14 @@ import (
 
 	pb "github.com/mccor2000/cinema/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
-  opts := []grpc.DialOption{}
-  conn, err := grpc.NewClient("localhost:50051", opts...)
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+	conn, err := grpc.NewClient("localhost:50051", opts...)
 
 	if err != nil {
 		log.Fatalf("Failed to not connect: %v", err)
@@ -24,9 +27,14 @@ func main() {
 
 	// Example usage
 	config := &pb.CinemaConfig{Rows: 5, Columns: 5, MinDistance: 2}
+	updateResp, err := c.UpdateCinema(ctx, config)
+	if err != nil {
+		log.Fatalf("could not update cinema: %v", err)
+	}
+	log.Printf("Updated cinema: %v", updateResp)
 
 	// Query available seats
-	queryResp, err := c.QueryAvailableSeats(ctx, &pb.QueryRequest{Config: config, GroupSize: 2})
+	queryResp, err := c.QueryAvailableSeats(ctx, &pb.QueryRequest{})
 	if err != nil {
 		log.Fatalf("could not query available seats: %v", err)
 	}
@@ -37,14 +45,14 @@ func main() {
 		{Row: 0, Column: 0},
 		{Row: 0, Column: 1},
 	}
-	reserveResp, err := c.ReserveSeats(ctx, &pb.ReservationRequest{Config: config, Seats: seatsToReserve})
+	reserveResp, err := c.ReserveSeats(ctx, &pb.ReservationRequest{Seats: seatsToReserve})
 	if err != nil {
 		log.Fatalf("could not reserve seats: %v", err)
 	}
 	log.Printf("Reservation response: %v, %s", reserveResp.Success, reserveResp.Message)
 
 	// Cancel reservation
-	cancelResp, err := c.CancelReservation(ctx, &pb.CancellationRequest{Config: config, Seats: seatsToReserve})
+	cancelResp, err := c.CancelReservation(ctx, &pb.CancellationRequest{Seats: seatsToReserve})
 	if err != nil {
 		log.Fatalf("could not cancel reservation: %v", err)
 	}
