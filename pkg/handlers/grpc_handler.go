@@ -16,10 +16,17 @@ type GrpcHandler struct {
 	srv *srv.Service
 }
 
-func NewGrpcHandler() *GrpcHandler {
-	return &GrpcHandler{
-		srv: srv.NewService(str.NewInMemoryStorage()),
+func NewGrpcHandler(strType string) *GrpcHandler {
+	switch strType {
+	case "in_memory":
+		return &GrpcHandler{
+			srv: srv.NewService(str.NewInMemoryStorage()),
+		}
+	default:
+		log.Fatalf("unknown storage type: %s", strType)
 	}
+
+	return nil
 }
 
 func (h *GrpcHandler) UpdateCinema(ctx context.Context, in *pb.CinemaConfig) (*pb.CinemaResponse, error) {
